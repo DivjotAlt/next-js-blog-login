@@ -1,6 +1,7 @@
 "use client";
 
 import Layout from "../components/layout";
+import Modal from "../components/modal";
 import useToken from "../components/hooks/useToken";
 import { queryApi } from "../lib/queryApi";
 import { useState } from "react";
@@ -8,20 +9,33 @@ import { useState } from "react";
 export default function Authenticate() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { token, setToken, getToken } = useToken();
+  const [showModal, setShowModal] = useState(false);
+  const [modalHeading, setModalHeading] = useState(false);
+  const [modalContent, setModalContent] = useState(false);
+  const [modalError, setModalError] = useState(false);
+  const { setToken, getToken } = useToken();
 
-  if (getToken()) {
-    return (
-      <Layout>
-        <h1>Logged in</h1>
-      </Layout>
-    );
+  function showModalFunc(heading, content, isError) {
+    setModalError(isError);
+    setModalContent(content);
+    setModalHeading(heading);
+    setShowModal(!showModal);
   }
+  (async () => {
+    if (getToken()) {
+      let res = await queryApi("username", { token: getToken() });
+      setUsername(await res.username);
+    }
+  })();
   async function signInFormHandler(e) {
     e.preventDefault();
     const request = await queryApi("sign-in", { username, password });
     if (await request.code) {
-      console.log("Error: " + request.code);
+      showModalFunc(
+        await request.code,
+        "The above error occured. Click anywhere to dismiss",
+        true
+      );
     } else {
       if (await request.token) {
         setToken(request.token);
@@ -32,7 +46,11 @@ export default function Authenticate() {
     e.preventDefault();
     const request = await queryApi("sign-up", { username, password });
     if (await request.code) {
-      console.log("Error: " + request.code);
+      showModalFunc(
+        await request.code,
+        "The above error occured. Click anywhere to dismiss",
+        true
+      );
     } else {
       if (await request.token) {
         setToken(request.token);
@@ -41,33 +59,71 @@ export default function Authenticate() {
   }
   return (
     <Layout>
-      <h1>Welcome to Auth :)</h1>
-      <form onSubmit={signInFormHandler}>
-        <h2 style={{ marginBottom: 0 }}>Sign In</h2>
-        Username:{" "}
-        <input type="text" onChange={(e) => setUsername(e.target.value)} />{" "}
-        <br />
-        Password:{" "}
-        <input
-          type="password"
-          onChange={(e) => setPassword(e.target.value)}
-        />{" "}
-        <br />
-        <button type="submit">Submit</button>
-      </form>
-      <form onSubmit={signUpFormHandler} style={{ marginTop: "1rem" }}>
-        <h2 style={{ marginBottom: 0 }}>Sign Up</h2>
-        Username:{" "}
-        <input type="text" onChange={(e) => setUsername(e.target.value)} />{" "}
-        <br />
-        Password:{" "}
-        <input
-          type="password"
-          onChange={(e) => setPassword(e.target.value)}
-        />{" "}
-        <br />
-        <button type="submit">Submit</button>
-      </form>
+      <Modal
+        shown={showModal}
+        setShown={setShowModal}
+        heading={modalHeading}
+        content={modalContent}
+        isError={modalError}
+      />
+      <a
+        onClick={() => {
+          setToken("");
+          location.reload();
+        }}
+      >
+        Sign out
+      </a>
+      {getToken() ? (
+        <h1>Logged In as {username} </h1>
+      ) : (
+        <>
+          <form onSubmit={signInFormHandler}>
+            <h2 style={{ marginBottom: 0 }}>Sign In</h2>
+            Username:{" "}
+            <input
+              type="text"
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              minLength={3}
+              maxLength={15}
+            />{" "}
+            <br />
+            Password:{" "}
+            <input
+              type="password"
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+              maxLength={50}
+            />{" "}
+            <br />
+            <button type="submit">Submit</button>
+          </form>
+          <form onSubmit={signUpFormHandler} style={{ marginTop: "1rem" }}>
+            <h2 style={{ marginBottom: 0 }}>Sign Up</h2>
+            Username:{" "}
+            <input
+              type="text"
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              minLength={3}
+              maxLength={15}
+            />{" "}
+            <br />
+            Password:{" "}
+            <input
+              type="password"
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+              maxLength={50}
+            />{" "}
+            <br />
+            <button type="submit">Submit</button>
+          </form>
+        </>
+      )}
     </Layout>
   );
 }

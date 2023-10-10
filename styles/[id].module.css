@@ -1,0 +1,22 @@
+.marginZero {
+  margin: 0;
+}
+
+.metadataContainer {
+  display: flex;
+  width: fit-content;
+  gap: 1rem;
+  background-color: #3f3f3f;
+  padding: 0.3rem;
+  margin: 0;
+  border-radius: 0.5rem;
+}
+
+.metadata {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.metadata a {
+  color: inherit;
+}

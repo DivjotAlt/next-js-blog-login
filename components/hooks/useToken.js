@@ -10,14 +10,14 @@ export default function useToken() {
         localStorage.removeItem(token);
       }
     } catch (_) {
-      console.error(_);
+      return;
     }
   };
   const getToken = () => {
     try {
       return localStorage.getItem("token");
     } catch (_) {
-      console.error(_);
+      return;
     }
   };
   return {

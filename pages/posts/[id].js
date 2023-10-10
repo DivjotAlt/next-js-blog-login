@@ -1,27 +1,53 @@
 import Layout from "../../components/layout";
-import { getAllPostIds, getPostData } from "../../lib/posts";
+import styles from "../../styles/[id].module.css";
+import { queryApi } from "../../lib/queryApi";
+import { getPostNames, getPostObject } from "../../lib/posts";
+import useToken from "../../components/hooks/useToken";
+import Link from "next/link";
 
-export default function Post({ postData }) {
+export default function Post({ post }) {
+  const { getToken } = useToken();
+  // if (!getToken()) {
+  //   return (
+  //     <Layout>
+  //       <h1>You have to be logged in to view this</h1>
+  //       <h2>
+  //         <Link href="/authenticate">Go to the authenticate page</Link>
+  //       </h2>
+  //     </Layout>
+  //   );
+  // }
+  let currentViews;
+  (async () => {
+    currentViews = await queryApi("post-view", { postId: post.id });
+    post.views = currentViews?.views;
+  })();
   return (
     <Layout>
-      {postData.title}
-      <br />
-      {postData.id}
-      <br />
-      {postData.date}
-      <div>{postData.contentHtml}</div>
+      <h1 className={styles.marginZero}>{post.content.heading}</h1>
+      <div className={styles.metadataContainer}>
+        <div className={styles.metadata}>{post.id}</div>
+        <div className={styles.metadata}>{post.views}</div>
+        <div className={styles.metadata}>
+          <Link href={`/users/${post.author}`}>{post.author}</Link>
+        </div>
+      </div>
+      <div className={styles.contentContainer}>
+        <p>{post.content.paragraph}</p>
+      </div>
+      {JSON.stringify(post)}
     </Layout>
   );
 }
 
 export async function getStaticPaths() {
-  const ids = getAllPostIds();
+  const postNames = getPostNames();
   return {
     paths: [
-      ...ids.map((id) => {
+      ...postNames.map((postName) => {
         return {
           params: {
-            id,
+            id: postName,
           },
         };
       }),
@@ -30,10 +56,10 @@ export async function getStaticPaths() {
   };
 }
 export async function getStaticProps({ params }) {
-  const postData = getPostData(params.id);
+  const postData = getPostObject(params.id);
   return {
     props: {
-      postData,
+      post: postData,
     },
   };
 }

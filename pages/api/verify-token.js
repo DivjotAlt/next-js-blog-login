@@ -1,4 +1,4 @@
-import { accountExists, checkPassword } from "../../lib/auth";
+import { accountExists, checkPassword } from "../../lib/accounts";
 import { isTokenCorrect, getTokenContent } from "../../lib/token";
 
 export default function handler(req, res) {
@@ -10,8 +10,10 @@ export default function handler(req, res) {
       if (accountExists(username)) {
         res.status(200).json({ verified: checkPassword(username, password) });
       } else {
-        res.status(404).json({ code: "EACCNOTEXIST" });
+        res
+          .status(404)
+          .json({ code: "The account found in the token doesn't exist" });
       }
-    } else res.status(404).json({ code: "ETOKENWRONG" });
-  } else res.status(404).json({ code: "ETOKENINVALID" });
+    } else res.status(404).json({ code: "Server Error: Wrong token" });
+  } else res.status(404).json({ code: "Server Error: Invalid token" });
 }
