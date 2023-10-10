@@ -1,12 +1,11 @@
 import Layout from "../../components/layout";
 import styles from "../../styles/[id].module.css";
 import { queryApi } from "../../lib/queryApi";
-import { getPostNames, getPostObject } from "../../lib/posts";
+import { getPostObject } from "../../lib/posts";
 import useToken from "../../components/hooks/useToken";
 import Link from "next/link";
 
 export default function Post({ post }) {
-  const { getToken } = useToken();
   // if (!getToken()) {
   //   return (
   //     <Layout>
@@ -40,26 +39,6 @@ export default function Post({ post }) {
   );
 }
 
-export async function getStaticPaths() {
-  const postNames = getPostNames();
-  return {
-    paths: [
-      ...postNames.map((postName) => {
-        return {
-          params: {
-            id: postName,
-          },
-        };
-      }),
-    ],
-    fallback: false,
-  };
-}
-export async function getStaticProps({ params }) {
-  const postData = getPostObject(params.id);
-  return {
-    props: {
-      post: postData,
-    },
-  };
+export async function getServerSideProps(context) {
+  return { props: { post: getPostObject(context.params.id) } };
 }

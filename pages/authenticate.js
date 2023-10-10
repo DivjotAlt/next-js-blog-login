@@ -67,15 +67,15 @@ export default function Authenticate() {
         isError={modalError}
       />
       <a
+        href="/authenticate"
         onClick={() => {
           setToken("");
-          location.reload();
         }}
       >
         Sign out
       </a>
       {getToken() ? (
-        <h1>Logged In as {username} </h1>
+        <h1>Logged in as {username} </h1>
       ) : (
         <>
           <form onSubmit={signInFormHandler}>

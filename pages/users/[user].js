@@ -3,21 +3,18 @@ import { getPublicAccount, getUserNames } from "../../lib/accounts";
 import useToken from "../../components/hooks/useToken";
 import { queryApi } from "../../lib/queryApi";
 import { useState } from "react";
+import { useRouter } from "next/router";
 
-export default function UserPage({ userData }) {
+export default function UserPage() {
+  const router = useRouter();
+  let userData = getData(router.query.user);
   let [ownUserPage, setOwnUserpage] = useState(false);
   let token = useToken().getToken();
   if (token) {
-    console.log("token detected");
     (async () => {
-      let res = await queryApi("username", { token });
-      console.log(await res);
-      if ((await res.username) === userData.username) {
-        console.log("setting as own user page");
-        setOwnUserpage(true);
-      }
+      if (await useToken().getUsername()) setOwnUserpage(true);
     })();
-  }
+  }f
   return (
     <Layout>
       <h1>{userData.username}</h1>
@@ -26,27 +23,6 @@ export default function UserPage({ userData }) {
   );
 }
 
-export async function getStaticPaths() {
-  const userNames = getUserNames();
-  return {
-    paths: [
-      ...userNames.map((userName) => {
-        return {
-          params: {
-            user: userName,
-          },
-        };
-      }),
-    ],
-    fallback: false,
-  };
-}
-
-export async function getStaticProps({ params }) {
-  const userData = getPublicAccount(params.user);
-  return {
-    props: {
-      userData,
-    },
-  };
+function getData(username) {
+  return getPublicAccount(username);
 }

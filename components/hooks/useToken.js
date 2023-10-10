@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { queryApi } from "../../lib/queryApi";
 
 export default function useToken() {
   const [token, setToken] = useState("");
@@ -13,6 +14,12 @@ export default function useToken() {
       return;
     }
   };
+  const getUsername = async () => {
+    if (getToken()) {
+      return (await queryApi("username", { token: getToken() })).username;
+    }
+    return undefined;
+  };
   const getToken = () => {
     try {
       return localStorage.getItem("token");
@@ -23,6 +30,6 @@ export default function useToken() {
   return {
     setToken: saveToken,
     getToken,
-    token,
+    getUsername,
   };
 }

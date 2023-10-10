@@ -4,7 +4,7 @@ import Link from "next/link";
 import styles from "./layout.module.css";
 import utilStyles from "../styles/utils.module.css";
 const name = "Billi";
-export const siteTitle = "Next.js Sample Website";
+const siteTitle = "Divjot";
 
 export default function Layout({ children, home }) {
   return (
@@ -23,6 +23,7 @@ export default function Layout({ children, home }) {
         />
         <meta name="og:title" content={siteTitle} />
         <meta name="twitter:card" content="summary_large_image" />
+        <title>{siteTitle}</title>
       </Head>
       <header className={styles.header}>
         {home ? (
