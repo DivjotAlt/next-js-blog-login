@@ -2,7 +2,7 @@ import { useState } from "react";
 import { queryApi } from "../../lib/queryApi";
 
 export default function useToken() {
-  const [token, setToken] = useState("");
+  const [, setToken] = useState("");
   const saveToken = (token) => {
     setToken(token);
     try {

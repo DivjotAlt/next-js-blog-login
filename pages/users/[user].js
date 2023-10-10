@@ -1,20 +1,17 @@
 import Layout from "../../components/layout";
-import { getPublicAccount, getUserNames } from "../../lib/accounts";
+import { getPublicAccount } from "../../lib/accounts";
 import useToken from "../../components/hooks/useToken";
-import { queryApi } from "../../lib/queryApi";
 import { useState } from "react";
-import { useRouter } from "next/router";
 
-export default function UserPage() {
-  const router = useRouter();
-  let userData = getData(router.query.user);
+export default function UserPage({ userData }) {
   let [ownUserPage, setOwnUserpage] = useState(false);
   let token = useToken().getToken();
   if (token) {
     (async () => {
       if (await useToken().getUsername()) setOwnUserpage(true);
     })();
-  }f
+  }
+  f;
   return (
     <Layout>
       <h1>{userData.username}</h1>
@@ -23,6 +20,6 @@ export default function UserPage() {
   );
 }
 
-function getData(username) {
-  return getPublicAccount(username);
+export async function getServerSideProps(context) {
+  return { props: { userData: getPublicAccount(context.params.user) } };
 }
